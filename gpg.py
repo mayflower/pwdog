@@ -107,7 +107,7 @@ class GPG(object):
 
     def encrypt(self, recipients, plaintext):
         cipher_data = pyme.core.Data()
-        cipher_recipients = [key_key_t for key in self.get_keys(recipients)]
+        cipher_recipients = [key.key_t for key in self.get_keys(recipients)]
         message = pyme.core.Data(plaintext)
 
         self.c.op_encrypt(cipher_recipients, pyme.constants.ENCRYPT_ALWAYS_TRUST,
