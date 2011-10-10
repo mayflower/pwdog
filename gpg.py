@@ -1,12 +1,38 @@
 import pyme.core
 import pyme.constants
 
+
+class GPGSubkey(object):
+    def __init__(self, subkey_t):
+        self.subkey_t = subkey_t
+        self.fpr = subkey_t.fpr
+
+    def __str__(self):
+        return 'Sub(%s)' % self.subkey_t.keyid
+
+
+class GPGKey(object):
+    def __init__(self, key_t):
+        self.key_t = key_t
+        self.uids = ['%s <%s>' % (uid.name, uid.email) for uid in key_t.uids]
+        self.subkeys = [GPGSubkey(subkey) for subkey in key_t.subkeys]
+
+    def __cmp__(self, o):
+        if all(a.fpr == b.fpr for a, b in zip(self.subkeys, o.subkeys)):
+            return 0
+        return 1
+
+    def __str__(self):
+        return '%s\n\t%s' % (', '.join(map(str, self.subkeys)),
+                '\n\t'.join(map(str, self.uids)))
+
+
 class GPG(object):
     def __init__(self):
         self.c = pyme.core.Context()
         self.c.set_armor(1)
 
-    def get_cipher_fingerprints(self, cipher):
+    def get_cipher_recipients(self, cipher):
         cipher_data = pyme.core.Data(cipher)
         foo = pyme.core.Data()
 
@@ -24,10 +50,9 @@ class GPG(object):
                 key = self.c.op_keylist_next()
                 if key is None:
                     break
-                for subkey in key.subkeys:
-                    yield subkey.fpr
+                yield GPGKey(key)
 
-    def get_cipher_signees(self, cipher):
+    def get_cipher_signee_keyids(self, cipher):
         cipher_data = pyme.core.Data(cipher)
         message = pyme.core.Data()
 
@@ -40,6 +65,13 @@ class GPG(object):
             if sig.summary & pyme.constants.SIGSUM_VALID:
                 yield sig.fpr
 
+    def get_cipher_signees(self, cipher):
+        signeekeyids = list(self.get_cipher_signee_keyids(cipher))
+        yield signeekeyids[0]
+
+        for key in self.get_keys(signeekeyids[1:]):
+            yield key
+
     def get_keys(self, aliases):
         for alias in aliases:
             self.c.op_keylist_start(alias, 0)
@@ -50,7 +82,7 @@ class GPG(object):
                 if key is None:
                     break
                     
-                yield key
+                yield GPGKey(key)
 
     def get_subkeys(self, aliases):
         for alias in aliases:
@@ -75,7 +107,7 @@ class GPG(object):
 
     def encrypt(self, recipients, plaintext):
         cipher_data = pyme.core.Data()
-        cipher_recipients = list(self.get_keys(recipients))
+        cipher_recipients = [key_key_t for key in self.get_keys(recipients)]
         message = pyme.core.Data(plaintext)
 
         self.c.op_encrypt(cipher_recipients, pyme.constants.ENCRYPT_ALWAYS_TRUST,
@@ -90,8 +122,8 @@ class GPG(object):
         signee_keys = list(self.get_keys(signee))
         
         for signee_key in signee_keys:
-            if signee_key.can_sign == 1:
-                self.c.signers_add(signee_key)
+            if signee_key.key_t.can_sign == 1:
+                self.c.signers_add(signee_key.key_t)
         
         #self.c.op_sign_start(plaintext, cipher_data, pyme.constants.SIG_MODE_NORMAL)
         

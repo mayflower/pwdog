@@ -37,13 +37,16 @@ def credential_put(name, type):
     signee = signees.next()
     
     try:
-        old_recipients = list(gpg.get_cipher_fingerprints(
+        old_recipients = list(gpg.get_cipher_recipients(
                             file('credentials/%s/%s' % (name, type), 'r').read()
                         ))
     except:
         old_recipients = []
 
-    new_recipients = list(gpg.get_cipher_fingerprints(credential))
+    new_recipients = list(gpg.get_cipher_recipients(credential))
+
+    print map(str, old_recipients)
+    print map(str, new_recipients)
 
     if len(old_recipients) > 0 and signee not in old_recipients:
         raise bottle.HTTPError(401, 'No access')
@@ -63,9 +66,9 @@ def credential_delete(name, type):
     signees = gpg.get_cipher_signees(body)
     credential = signees.next()
     signee = signees.next()
-    
+
     try:
-        old_recipients = list(gpg.get_cipher_fingerprints(
+        old_recipients = list(gpg.get_cipher_recipients(
                             file('credentials/%s/%s' % (name, type), 'r').read()
                         ))
     except:
