@@ -40,6 +40,11 @@ class GPG(object):
             if sig.summary & pyme.constants.SIGSUM_VALID:
                 yield sig.fpr
 
+    def get_keys(self, aliases):
+        for alias in aliases:
+            self.c.op_keylist_start(alias, 0)
+            yield self.c.op_keylist_next()
+
     def decrypt(self, cipher):
         cipher_data = pyme.core.Data(cipher)
         message = pyme.core.Data()
