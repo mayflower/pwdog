@@ -7,7 +7,7 @@ import httplib2
 import json
 
 gpg = gpg.GPG()
-signee = 'codec@fnord.cx'
+signee = ['codec@fnord.cx']
 
 def request(path, method='GET', body=''):
     h = httplib2.Http()
@@ -36,7 +36,7 @@ def set(name, type):
     plaintext = sys.stdin.readlines()
 
     cipher = gpg.encrypt(recipients, "".join(plaintext))
-    signed_cipher = gpg.sign(['codec@fnord.cx'], cipher)
+    signed_cipher = gpg.sign(signee, cipher)
 
     request('/credential/%s/%s' % (name, type), 'PUT', signed_cipher)
 
@@ -44,7 +44,7 @@ def delete(name, type):
     if type == '':
         sys.stdout.write('This will delete ALL credentials for %s! Are you sure? (y/N)' % name)
 
-    signed_cipher = gpg.sign([signee], 'DELETE %s/%s')
+    signed_cipher = gpg.sign(signee, 'DELETE %s/%s')
 
     request('/credential/%s/%s' % (name, type), 'DELETE', signed_cipher)
 
