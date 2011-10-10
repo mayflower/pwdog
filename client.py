@@ -7,6 +7,7 @@ import httplib2
 import json
 
 gpg = gpg.GPG()
+signee = 'codec@fnord.cx'
 
 def request(path, method='GET', body=''):
     h = httplib2.Http()
