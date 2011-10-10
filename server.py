@@ -65,22 +65,24 @@ def credential_delete(name, type):
 
     signees = gpg.get_cipher_signees(body)
     credential = signees.next()
-    signee = signees.next()
 
-    try:
-        old_recipients = list(gpg.get_cipher_recipients(
-                            file('credentials/%s/%s' % (name, type), 'r').read()
-                        ))
-    except:
-        old_recipients = []
+    for signee in signees:
+        try:
+            old_recipients = list(gpg.get_cipher_recipients(
+                                file('credentials/%s/%s' % (name, type), 'r').read()
+                                ))
+        except:
+            old_recipients = []
 
-    if len(old_recipients) > 0:
-        if signee in old_recipients:
-            os.unlink('credentials/%s/%s' % (name, type))
+        print signee
+
+        if len(old_recipients) > 0:
+            if signee in old_recipients:
+                os.unlink('credentials/%s/%s' % (name, type))
+            else:
+                raise bottle.HTTPError(401)
         else:
-            raise bottle.HTTPError(401)
-    else:
-        raise bottle.HTTPError(404)
+            raise bottle.HTTPError(404)
 
 @bottle.get('/credential/:name/:type')
 def credential(name, type):
