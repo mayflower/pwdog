@@ -62,7 +62,7 @@ class GPG(object):
 
         res = self.c.op_verify_result()
         for sig in res.signatures:
-            if sig.summary & pyme.constants.SIGSUM_VALID:
+            if sig.summary & pyme.constants.SIGSUM_VALID|pyme.constants.SIGSUM_GREEN:
                 yield sig.fpr
 
     def get_cipher_signees(self, cipher):

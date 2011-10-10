@@ -11,7 +11,11 @@ signee = ['franz.pletz@mayflower.de']
 
 def request(path, method='GET', body=''):
     h = httplib2.Http()
-    return h.request("http://127.0.0.1:8080%s" % path, method=method, body=body)
+    resp, content = h.request("http://127.0.0.1:8080%s" % path, method=method, body=body)
+    if resp != 200:
+        print content
+
+    return resp, content
 
 
 def get(name, type, **kwargs):
