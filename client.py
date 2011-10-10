@@ -42,7 +42,12 @@ def set(name, type):
     request('/credential/%s/%s' % (name, type), 'PUT', signed_cipher)
 
 def delete(name, type):
-    pass
+    if type == '':
+        sys.stdout.write('This will delete ALL credentials for %s! Are you sure? (y/N)' % name)
+
+    signed_cipher = gpg.sign([signee], 'DELETE %s/%s')
+
+    request('/credential/%s/%s' % (name, type), 'DELETE', signed_cipher)
 
 parser = argparse.ArgumentParser(description='pwdog')
 subparsers = parser.add_subparsers(dest='command', help='sub-command help')
