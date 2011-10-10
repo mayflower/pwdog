@@ -36,7 +36,9 @@ def set(name, type):
     plaintext = sys.stdin.readlines()
 
     cipher = gpg.encrypt(recipients, "".join(plaintext))
-    print cipher
+    signed_cipher = gpg.sign(['codec@fnord.cx'], cipher)
+
+    request('/credential/%s/%s' % (name, type), 'PUT', signed_cipher)
 
 def delete(name, type):
     pass

@@ -43,7 +43,26 @@ class GPG(object):
     def get_keys(self, aliases):
         for alias in aliases:
             self.c.op_keylist_start(alias, 0)
-            yield self.c.op_keylist_next()
+
+            while 1:
+                key = self.c.op_keylist_next()
+                
+                if key is None:
+                    break
+                    
+                yield key
+
+    def get_subkeys(self, aliases):
+        for alias in aliases:
+            self.c.op_keylist_start(alias, 0)
+
+            while 1:
+                key = self.c.op_keylist_next()
+                if key is None:
+                    break
+                
+                for subkey in key.subkeys:
+                    yield subkey
 
     def decrypt(self, cipher):
         cipher_data = pyme.core.Data(cipher)
@@ -62,5 +81,22 @@ class GPG(object):
         self.c.op_encrypt(cipher_recipients, pyme.constants.ENCRYPT_ALWAYS_TRUST,
                             message, cipher_data)
 
+        cipher_data.seek(0,0)
+        return cipher_data.read()
+
+    def sign(self, signee, message):
+        plaintext = pyme.core.Data(message)
+        cipher_data = pyme.core.Data()
+        signee_keys = list(self.get_keys(signee))
+        
+        for signee_key in signee_keys:
+            if signee_key.can_sign == 1:
+                self.c.signers_add(signee_key)
+        
+        #self.c.op_sign_start(plaintext, cipher_data, pyme.constants.SIG_MODE_NORMAL)
+        
+        self.c.op_sign(plaintext, cipher_data, pyme.constants.SIG_MODE_NORMAL)
+        result = self.c.op_sign_result()
+        
         cipher_data.seek(0,0)
         return cipher_data.read()
