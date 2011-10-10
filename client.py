@@ -24,7 +24,6 @@ def get(name, type, **kwargs):
     print gpg.decrypt(content)
 
 def set(name, type):
-    # TODO: sign and push to server
     input = None
     recipients = []
 
