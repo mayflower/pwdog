@@ -100,3 +100,4 @@ class GPG(object):
         
         cipher_data.seek(0,0)
         return cipher_data.read()
+

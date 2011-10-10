@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import bottle
 import os
 import json
