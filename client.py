@@ -23,7 +23,20 @@ def get(name, type, **kwargs):
     print gpg.decrypt(content)
 
 def set(name, type):
-    pass
+    # TODO: sign and push to server
+    input = None
+    recipients = []
+
+    while input != '':
+        sys.stdout.write('Enter name of your recipient: ')
+        input = sys.stdin.readline().strip()
+        recipients.append(input)
+
+    sys.stdout.write('Enter the credentials:\n')
+    plaintext = sys.stdin.readlines()
+
+    cipher = gpg.encrypt(recipients, "".join(plaintext))
+    print cipher
 
 def delete(name, type):
     pass
