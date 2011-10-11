@@ -34,10 +34,10 @@ class GPG(object):
 
     def get_cipher_recipients(self, cipher):
         cipher_data = pyme.core.Data(cipher)
-        foo = pyme.core.Data()
+        plaintext = pyme.core.Data()
 
         try:
-            self.c.op_decrypt(cipher_data, foo)
+            self.c.op_decrypt(cipher_data, plaintext)
         except pyme.errors.GPGMEError:
             pass
 
