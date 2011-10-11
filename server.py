@@ -49,9 +49,9 @@ def credential_put(name, type):
     print map(str, new_recipients)
 
     if len(old_recipients) > 0 and signee not in old_recipients:
-        raise bottle.HTTPError(401, 'No access')
+        raise bottle.HTTPResponse(code=401, output='No access')
     elif signee not in new_recipients:
-        raise bottle.HTTPError(400, 'Idiot...')
+        raise bottle.HTTPResponse(code=400, output='Idiot...')
     else:
         file('credentials/%s/%s' % (name, type), 'w').write(credential)
 
@@ -80,16 +80,16 @@ def credential_delete(name, type):
             if signee in old_recipients:
                 os.unlink('credentials/%s/%s' % (name, type))
             else:
-                raise bottle.HTTPError(401)
+                raise bottle.HTTPResponse(code=401)
         else:
-            raise bottle.HTTPError(404)
+            raise bottle.HTTPResponse(code=404)
 
 @bottle.get('/credential/:name/:type')
 def credential(name, type):
     try:
         return file('credentials/%s/%s' % (name, type)).read()
     except:
-        raise bottle.HTTPError(404)
+        raise bottle.HTTPResponse(status=404)
 
 bottle.debug(True)
 bottle.run(host='localhost', port=8080)
