@@ -8,7 +8,8 @@ class GPGSubkey(object):
         self.fpr = subkey_t.fpr
 
     def __str__(self):
-        return 'Sub(%s)' % self.subkey_t.keyid
+        #return 'Sub(%s)' % self.subkey_t.keyid
+        return self.subkey_t.keyid
 
 
 class GPGKey(object):
@@ -23,8 +24,7 @@ class GPGKey(object):
         return 1
 
     def __str__(self):
-        return '%s\n\t%s' % (', '.join(map(str, self.subkeys)),
-                '\n\t'.join(map(str, self.uids)))
+        return '[%s] %s' % (''.join(map(str, self.subkeys)), ', '.join(map(str, self.uids)))
 
 
 class GPG(object):
@@ -38,20 +38,21 @@ class GPG(object):
 
         try:
             self.c.op_decrypt(cipher_data, plaintext)
+            
+            recipients = [i.keyid for i in self.c.op_decrypt_result().recipients]
+
+            for recipient in recipients:
+                self.c.op_keylist_start(recipient, 0)
+
+                while 1:
+                    key = self.c.op_keylist_next()
+                    if key is None:
+                        break
+                    yield GPGKey(key)
+
         except pyme.errors.GPGMEError:
-            pass
-
-        recipients = [i.keyid for i in self.c.op_decrypt_result().recipients]
-
-        for recipient in recipients:
-            self.c.op_keylist_start(recipient, 0)
-
-            while 1:
-                key = self.c.op_keylist_next()
-                if key is None:
-                    break
-                yield GPGKey(key)
-
+            raise
+            
     def get_cipher_signee_keyids(self, cipher):
         cipher_data = pyme.core.Data(cipher)
         message = pyme.core.Data()
