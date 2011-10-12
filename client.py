@@ -5,6 +5,7 @@ import gpg
 import argparse
 import httplib2
 import json
+import difflib
 import cache
 
 gpg = gpg.GPG()
@@ -22,6 +23,35 @@ def request(path, method='GET', body=''):
 
     resp, content = request('/credential/%s/%s' % (name, type), 'GET')
 def credential_get(name, type, **kwargs):
+    try:
+        resp, content = request('/credential/%s/%s' % (name, type), 'GET')
+    except:
+        print 'Could not fetch credential from server'
+        return False
+    
+    try:
+        cached_content = cache.read(name, type)
+        
+        recipients_cached = '\n'.join(map(str, gpg.get_cipher_recipients(cached_content)))
+        recipients_remote = '\n'.join(map(str, gpg.get_cipher_recipients(content)))
+        
+        differ          = difflib.Differ()
+        recipients_diff = list(differ.compare(recipients_cached.splitlines(), recipients_remote.splitlines()))
+        
+        print '\n'.join(map(str, recipients_diff))
+        
+        sys.stdout.write('Accept? (y/N) ')
+        reply = sys.stdin.readline().strip()
+        
+        if reply == 'y':
+            cache.write(name, type, content)
+        else:
+            print "Operation aborted"
+            return False
+        
+    except:
+        pass
+        
     print gpg.decrypt(content)
     print '\n'.join(map(str, gpg.get_cipher_recipients(content)))
 
