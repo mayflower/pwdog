@@ -52,6 +52,12 @@ def credential_delete(name, type):
 
     request('/credential/%s/%s' % (name, type), 'DELETE', signed_cipher)
 
+def credential_recipients(name, type):
+    try:
+        content = cache.read(name, type)
+        print '\n'.join(map(str, gpg.get_cipher_recipients(content)))
+    except:
+        raise
 
 def main():
     parser = argparse.ArgumentParser(description='pwdog')
@@ -75,6 +81,12 @@ def main():
     parser_delete.add_argument('type', type=str,
                        help='type of service')
 
+    parser_recipients = subparsers.add_parser('recipients', help='show recipients of a cached credential')
+    parser_recipients.add_argument('name', type=str,
+                       help='name of credential')
+    parser_recipients.add_argument('type', type=str,
+                       help='type of service')
+                       
     args = parser.parse_args()
     command_args = locals()['parser_' + args.command].parse_args(sys.argv[2:])
     globals()[args.command].__call__(**vars(command_args))
