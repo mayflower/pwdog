@@ -14,9 +14,9 @@ cache   = cache.Cache('./.pwdog/localhost')
 def request(path, method='GET', body=''):
     h = httplib2.Http()
     resp, content = h.request("http://127.0.0.1:8080%s" % path, method=method, body=body)
-    if resp != 200:
-        print content
-
+    if resp.status != 200:
+        raise OSError
+        
     return resp, content
 
 
