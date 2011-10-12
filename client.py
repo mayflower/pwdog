@@ -18,12 +18,12 @@ def request(path, method='GET', body=''):
     return resp, content
 
 
-def get(name, type, **kwargs):
     resp, content = request('/credential/%s/%s' % (name, type), 'GET')
+def credential_get(name, type, **kwargs):
     print gpg.decrypt(content)
     print '\n'.join(map(str, gpg.get_cipher_recipients(content)))
 
-def set(name, type):
+def credential_set(name, type):
     input = None
     recipients = []
 
@@ -42,10 +42,10 @@ def set(name, type):
 
     request('/credential/%s/%s' % (name, type), 'PUT', signed_cipher)
 
-def delete(name, type):
     if type == '':
         sys.stdout.write('This will delete ALL credentials for %s! Are you sure? (y/N)' % name)
 
+def credential_delete(name, type):
     signed_cipher = gpg.sign(signee, 'DELETE %s/%s')
 
     request('/credential/%s/%s' % (name, type), 'DELETE', signed_cipher)
@@ -77,6 +77,7 @@ def main():
     command_args = locals()['parser_' + args.command].parse_args(sys.argv[2:])
     globals()[args.command].__call__(**vars(command_args))
 
+    globals()['credential_' + args.command].__call__(**vars(command_args))
 if __name__ == '__main__':
     main()
 
