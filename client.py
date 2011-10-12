@@ -5,9 +5,11 @@ import gpg
 import argparse
 import httplib2
 import json
+import cache
 
 gpg = gpg.GPG()
 signee = ['franz.pletz@mayflower.de']
+cache   = cache.Cache('./.pwdog/localhost')
 
 def request(path, method='GET', body=''):
     h = httplib2.Http()
