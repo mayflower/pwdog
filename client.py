@@ -1,16 +1,20 @@
 #!/usr/bin/env python
 
 import sys
-import gpg
 import argparse
 import httplib2
 import json
 import difflib
+
+import gpg
 import cache
 
-gpg = gpg.GPG()
-signee = ['franz.pletz@mayflower.de']
+from pprint import pprint
+
+gpg     = gpg.GPG()
 cache   = cache.Cache('./.pwdog/localhost')
+
+signee = ['patrick.otto@mayflower.de']
 
 def request(path, method='GET', body=''):
     h = httplib2.Http()
