@@ -40,21 +40,23 @@ def credential_get(name, type, **kwargs):
         differ          = difflib.Differ()
         recipients_diff = list(differ.compare(recipients_cached.splitlines(), recipients_remote.splitlines()))
         
-        print '\n'.join(map(str, recipients_diff))
-        
-        sys.stdout.write('Accept? (y/N) ')
-        reply = sys.stdin.readline().strip()
-        
-        if reply == 'y':
-            cache.write(name, type, content)
-        else:
-            print "Operation aborted"
-            return False
-        
+        for line in map(str, recipients_diff):
+            if (line[0] + line[1]) == '+ ' or (line[0] + line[1]) == '- ':
+                print '\n'.join(map(str, recipients_diff))
+                
+                sys.stdout.write('Accept? (y/N) ')
+                reply = sys.stdin.readline().strip()
+    
+                if reply == 'y':
+                    cache.write(name, type, content)
+                else:
+                    print "Operation aborted"
+                    return False
     except:
         pass
-        
-    print gpg.decrypt(content)
+    
+    print '\n'.join(map(str, gpg.get_cipher_recipients(content)))
+    print '\n' + gpg.decrypt(content)
         
     if cache.write(name, type, content) == True:
         print "Credential cached"
