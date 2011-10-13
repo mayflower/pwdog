@@ -20,6 +20,8 @@ def request(path, method='GET', body=''):
     h = httplib2.Http()
     resp, content = h.request("http://127.0.0.1:8080%s" % path, method=method, body=body)
     if resp.status != 200:
+        print resp.status
+        print content
         raise OSError
         
     return resp, content
