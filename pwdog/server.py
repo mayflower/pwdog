@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import bottle
 import os
 import json
@@ -89,5 +87,9 @@ def credential_delete(name, type):
         else:
             raise bottle.HTTPResponse(status=404)
 
-bottle.debug(True)
-bottle.run(host='localhost', port=8080)
+def main():
+    bottle.debug(True)
+    bottle.run(host='localhost', port=8080)
+
+if __name__ == '__main__':
+    main()
