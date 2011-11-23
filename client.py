@@ -6,15 +6,15 @@ import httplib2
 import json
 import difflib
 
-import gpg
-import cache
-
 from pprint import pprint
 
-gpg     = gpg.GPG()
-cache   = cache.Cache('./.pwdog/localhost')
+import gpg
+import store
+import config
 
-signee = ['patrick.otto@mayflower.de']
+gpg     = gpg.GPG()
+config  = config.Config('pwdog.conf', 'client')
+cache   = store.FilesystemStore(config.get('cache_path'))
 
 def request(path, method='GET', body=''):
     h = httplib2.Http()
@@ -32,9 +32,9 @@ def credential_get(name, type, **kwargs):
     except:
         print 'Could not fetch credential from server'
         return False
-    
+
     try:
-        cached_content = cache.read(name, type)
+        cached_content = cache.get(name, type)
         
         recipients_cached = '\n'.join(map(str, gpg.get_cipher_recipients(cached_content)))
         recipients_remote = '\n'.join(map(str, gpg.get_cipher_recipients(content)))

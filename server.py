@@ -4,6 +4,9 @@ import bottle
 import os
 import json
 from gpg import GPG
+from store import FilesystemStore
+
+store = FilesystemStore('./credentials')
 
 def jsonify(f):
     def ret(*args, **kwargs):
@@ -14,19 +17,20 @@ def jsonify(f):
 @bottle.get('/credential')
 @jsonify
 def credential_types():
-    return os.listdir('credentials')
+    return store.get()
 
 @bottle.get('/credential/:name')
 @jsonify
 def credential_types(name):
-    return os.listdir('credentials/%s' % name)
+    return store.get(name)
 
 @bottle.get('/credential/:name/:type')
 def credential(name, type):
-    try:
-        return file('credentials/%s/%s' % (name, type)).read()
-    except:
+    credential = store.get(name, type)
+    if credential is None:
         raise bottle.HTTPResponse(status=404, output='%s/%s not found' % (name, type))
+    else:
+        return credential
 
 
 @bottle.put('/credential/:name/:type')
@@ -43,13 +47,12 @@ def credential_put(name, type):
     signees = gpg.get_cipher_signees(body)
     credential = signees.next()
     signee = signees.next()
-    
-    try:
-        old_recipients = list(gpg.get_cipher_recipients(
-                            file('credentials/%s/%s' % (name, type), 'r').read()
-                        ))
-    except:
+
+    old_credential = store.get(name, type)
+    if old_credential is None:
         old_recipients = []
+    else:
+        old_recipients = list(gpg.get_cipher_recipients(gpg.get_cipher_signees(old_credential).next()))
 
     new_recipients = list(gpg.get_cipher_recipients(credential))
 
@@ -60,8 +63,8 @@ def credential_put(name, type):
         raise bottle.HTTPResponse(status=401, output='No access')
     elif signee not in new_recipients:
         raise bottle.HTTPResponse(status=400, output='Idiot...')
-    else:
-        file('credentials/%s/%s' % (name, type), 'w').write(credential)
+    
+    store.set(name, type, body)
         
 
 @bottle.delete('/credential/:name/:type')
@@ -85,7 +88,7 @@ def credential_delete(name, type):
 
         if len(old_recipients) > 0:
             if signee in old_recipients:
-                os.unlink('credentials/%s/%s' % (name, type))
+                store.delete(name, type)
             else:
                 raise bottle.HTTPResponse(status=401)
         else:

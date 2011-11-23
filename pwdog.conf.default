@@ -1,0 +1,7 @@
+[client]
+mykeyid = 44BC94A3
+cache_path = ./.pwdog/cache
+
+[server]
+store = filesystem
+store_path = .
