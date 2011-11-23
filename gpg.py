@@ -38,20 +38,20 @@ class GPG(object):
 
         try:
             self.c.op_decrypt(cipher_data, plaintext)
-            
-            recipients = [i.keyid for i in self.c.op_decrypt_result().recipients]
-
-            for recipient in recipients:
-                self.c.op_keylist_start(recipient, 0)
-
-                while 1:
-                    key = self.c.op_keylist_next()
-                    if key is None:
-                        break
-                    yield GPGKey(key)
-
         except pyme.errors.GPGMEError:
-            raise
+            pass
+            
+        recipients = [i.keyid for i in self.c.op_decrypt_result().recipients]
+
+        for recipient in recipients:
+            self.c.op_keylist_start(recipient, 0)
+
+            while 1:
+                key = self.c.op_keylist_next()
+                if key is None:
+                    break
+                yield GPGKey(key)
+
             
     def get_cipher_signee_keyids(self, cipher):
         cipher_data = pyme.core.Data(cipher)

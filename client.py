@@ -40,7 +40,7 @@ def credential_get(name, type, **kwargs):
         recipients_remote = '\n'.join(map(str, gpg.get_cipher_recipients(content)))
         
         differ          = difflib.Differ()
-        recipients_diff = list(differ.compare(recipients_cached.splitlines(), recipients_remote.splitlines()))
+        recipients_diff = differ.compare(recipients_cached.splitlines(), recipients_remote.splitlines())
         
         for line in map(str, recipients_diff):
             if (line[0] + line[1]) == '+ ' or (line[0] + line[1]) == '- ':
