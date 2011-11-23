@@ -18,16 +18,16 @@ cache   = store.FilesystemStore(config.get('cache_path'))
 
 def request(path, method='GET', body=''):
     h = httplib2.Http()
+    # TODO: Assemble path here
     resp, content = h.request("http://127.0.0.1:8080%s" % path, method=method, body=body)
     if resp.status != 200:
-        print resp.status
-        print content
-        raise OSError
+        print 'HTTP FAIL(%i): %s' % (resp.status, content)
         
     return resp, content
 
 def credential_get(name, type, **kwargs):
     try:
+        # TODO: fix enumeration (format string fnord)
         resp, content = request('/credential/%s/%s' % (name, type), 'GET')
     except:
         print 'Could not fetch credential from server'
@@ -50,20 +50,27 @@ def credential_get(name, type, **kwargs):
                 reply = sys.stdin.readline().strip()
     
                 if reply == 'y':
-                    cache.write(name, type, content)
+                    cache.set(name, type, content)
                 else:
                     print "Operation aborted"
                     return False
     except:
         pass
-    
-    print '\n'.join(map(str, gpg.get_cipher_recipients(content)))
-    print '\n' + gpg.decrypt(content)
-        
-    if cache.write(name, type, content) == True:
-        print "Credential cached"
-    else:
-        print "Failed to cache credential"
+
+    signees = gpg.get_cipher_signees(content)
+    cipher = signees.next()
+
+    print 'Last edited by: ' + ('\n'.join(map(str, signees)) or 'n/a')
+
+    print 'Access list:\n' + '\n'.join(map(lambda x: '\t* ' + str(x), gpg.get_cipher_recipients(cipher)))
+
+    try:
+        print '\n' + gpg.decrypt(cipher)
+    except:
+        print 'You have no access to this credential!'
+        sys.exit(1)
+
+    cache.set(name, type, content)
 
 def credential_set(name, type):
     input = None
@@ -80,18 +87,18 @@ def credential_set(name, type):
     plaintext = ''.join(sys.stdin.readlines())
     
     cipher = gpg.encrypt(recipients, plaintext)
-    signed_cipher = gpg.sign(signee, cipher)
+    signed_cipher = gpg.sign([config.get('mykeyid')], cipher)
     
     request('/credential/%s/%s' % (name, type), 'PUT', signed_cipher)
 
 def credential_delete(name, type):
-    signed_cipher = gpg.sign(signee, 'DELETE %s/%s')
+    signed_cipher = gpg.sign([config.get('mykeyid')], 'DELETE %s/%s')
     
     request('/credential/%s/%s' % (name, type), 'DELETE', signed_cipher)
 
 def credential_recipients(name, type):
     try:
-        content = cache.read(name, type)
+        content = cache.get(name, type)
         print '\n'.join(map(str, gpg.get_cipher_recipients(content)))
     except:
         raise

@@ -10,7 +10,7 @@ store = FilesystemStore('./credentials')
 
 def jsonify(f):
     def ret(*args, **kwargs):
-        return json.dumps(f(*args, **kwargs))
+        return json.dumps(f(*args, **kwargs)) + '\n'
     
     return ret
 
@@ -36,11 +36,6 @@ def credential(name, type):
 @bottle.put('/credential/:name/:type')
 @jsonify
 def credential_put(name, type):
-    try:
-        os.makedirs('credentials/%s' % name)
-    except OSError:
-        pass # trololo
-
     body = bottle.request.body.read()
     gpg = GPG()
 
@@ -56,8 +51,8 @@ def credential_put(name, type):
 
     new_recipients = list(gpg.get_cipher_recipients(credential))
 
-    print map(str, old_recipients)
-    print map(str, new_recipients)
+    print 'Old:',  map(str, old_recipients)
+    print 'New:', map(str, new_recipients)
 
     if len(old_recipients) > 0 and signee not in old_recipients:
         raise bottle.HTTPResponse(status=401, output='No access')

@@ -9,7 +9,7 @@ class GPGSubkey(object):
 
     def __str__(self):
         #return 'Sub(%s)' % self.subkey_t.keyid
-        return self.subkey_t.keyid
+        return self.subkey_t.keyid[8:]
 
 
 class GPGKey(object):
@@ -24,7 +24,7 @@ class GPGKey(object):
         return 1
 
     def __str__(self):
-        return '[%s] %s' % (''.join(map(str, self.subkeys)), ', '.join(map(str, self.uids)))
+        return '[%s] %s' % ('|'.join(map(str, self.subkeys)), ', '.join(map(str, self.uids)))
 
 
 class GPG(object):
@@ -125,8 +125,6 @@ class GPG(object):
         for signee_key in signee_keys:
             if signee_key.key_t.can_sign == 1:
                 self.c.signers_add(signee_key.key_t)
-        
-        #self.c.op_sign_start(plaintext, cipher_data, pyme.constants.SIG_MODE_NORMAL)
         
         self.c.op_sign(plaintext, cipher_data, pyme.constants.SIG_MODE_NORMAL)
         result = self.c.op_sign_result()
