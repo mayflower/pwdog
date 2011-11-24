@@ -12,5 +12,5 @@ setup(name='pwdog',
       packages=['pwdog'],
       py_modules=['pwdog.gpg', 'pwdog.store', 'pwdog.config'],
       scripts=['scripts/pwdog', 'scripts/pwdog-server'],
-      data_files=[('/etc', ['pwdog.conf'])],
+      data_files=[('/etc', ['doc/pwdog.conf'])],
      )
