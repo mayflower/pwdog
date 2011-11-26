@@ -60,7 +60,7 @@ class GPG(object):
             self.c.op_decrypt(cipher_data, plaintext)
         except pyme.errors.GPGMEError:
             pass
-            
+
         recipients = [i.keyid for i in self.c.op_decrypt_result().recipients]
 
         for recipient in recipients:
@@ -72,7 +72,7 @@ class GPG(object):
                     break
                 yield GPGKey(key)
 
-            
+
     def get_cipher_signee_keyids(self, cipher):
         cipher_data = pyme.core.Data(cipher)
         message = pyme.core.Data()
@@ -99,10 +99,10 @@ class GPG(object):
 
             while 1:
                 key = self.c.op_keylist_next()
-                
+
                 if key is None:
                     break
-                    
+
                 yield GPGKey(key)
 
     def get_subkeys(self, aliases):
@@ -113,7 +113,7 @@ class GPG(object):
                 key = self.c.op_keylist_next()
                 if key is None:
                     break
-                
+
                 for subkey in key.subkeys:
                     yield subkey
 
@@ -141,11 +141,11 @@ class GPG(object):
         plaintext = pyme.core.Data(message)
         cipher_data = pyme.core.Data()
         signee_keys = list(self.get_keys(signee))
-        
+
         for signee_key in signee_keys:
             if signee_key.key_t.can_sign == 1:
                 self.c.signers_add(signee_key.key_t)
-        
+
         self.c.op_sign(plaintext, cipher_data, pyme.constants.SIG_MODE_NORMAL)
 
         # TODO: error handling

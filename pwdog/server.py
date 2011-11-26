@@ -29,7 +29,7 @@ store = FilesystemStore('./credentials')
 def jsonify(f):
     def ret(*args, **kwargs):
         return json.dumps(f(*args, **kwargs)) + '\n'
-    
+
     return ret
 
 @bottle.get('/credential')
@@ -76,9 +76,9 @@ def credential_put(name, type):
         raise bottle.HTTPResponse(status=401, output='No access')
     elif signee not in new_recipients:
         raise bottle.HTTPResponse(status=400, output='Idiot...')
-    
+
     store.set(name, type, body)
-        
+
 
 @bottle.delete('/credential/:name/:type')
 @jsonify
