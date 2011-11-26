@@ -1,0 +1,17 @@
+Source: pwdog
+Section: admin
+Priority: extra
+Maintainer: Franz Pletz <fpletz@fnordicwalking.de>
+Build-Depends: debhelper (>= 8.0.0), python
+Standards-Version: 3.9.2
+Homepage: https://github.com/mayflower/pwdog
+#Vcs-Git: git://git.debian.org/collab-maint/pwdog.git
+#Vcs-Browser: http://git.debian.org/?p=collab-maint/pwdog.git;a=summary
+
+Package: pwdog
+Architecture: all
+Depends: python-bottle, python-pyme, ${python:Depends}, ${python:Versions}, ${misc:Depends}
+Description: Secure credential storage tool
+ pwdog is a secure credential storage utilizing GPG for encryption and
+ access control.
+
