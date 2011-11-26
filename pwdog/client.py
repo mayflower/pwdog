@@ -21,7 +21,6 @@
 import sys
 import argparse
 import httplib2
-import json
 import difflib
 
 from pprint import pprint
@@ -91,15 +90,15 @@ def credential_get(name, type, **kwargs):
     cache.set(name, type, content)
 
 def credential_set(name, type):
-    input = None
+    inp = None
     recipients = []
     
     while 1:
         sys.stdout.write('Enter name of your recipient: ')
-        input = sys.stdin.readline().strip()
-        if input == '':
+        inp = sys.stdin.readline().strip()
+        if inp == '':
             break
-        recipients.append(input)
+        recipients.append(inp)
         
     sys.stdout.write('Enter the credentials:\n')
     plaintext = ''.join(sys.stdin.readlines())

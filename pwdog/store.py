@@ -51,4 +51,5 @@ class FilesystemStore(object):
             return None
 
     def delete(self, name, type):
-        os.unlink(os.path.join(self.cache_path, path, type))
+        os.unlink(os.path.join(self.cache_path, name, type))
+

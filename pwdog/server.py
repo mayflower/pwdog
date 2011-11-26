@@ -34,7 +34,7 @@ def jsonify(f):
 
 @bottle.get('/credential')
 @jsonify
-def credential_types():
+def credential_names():
     return store.get()
 
 @bottle.get('/credential/:name')

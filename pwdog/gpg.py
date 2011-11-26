@@ -147,8 +147,10 @@ class GPG(object):
                 self.c.signers_add(signee_key.key_t)
         
         self.c.op_sign(plaintext, cipher_data, pyme.constants.SIG_MODE_NORMAL)
-        result = self.c.op_sign_result()
-        
+
+        # TODO: error handling
+        #result = self.c.op_sign_result()
+
         cipher_data.seek(0,0)
         return cipher_data.read()
 
