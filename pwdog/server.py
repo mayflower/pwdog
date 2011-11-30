@@ -23,8 +23,10 @@ import os
 import json
 from gpg import GPG
 from store import FilesystemStore
+import config
 
-store = FilesystemStore('./credentials')
+config  = config.Config('pwdog.conf', 'server')
+store = FilesystemStore(config.get('store_path'))
 
 def jsonify(f):
     def ret(*args, **kwargs):
