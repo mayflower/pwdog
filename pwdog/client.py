@@ -77,9 +77,9 @@ def credential_get(name, type, **kwargs):
     signees = gpg.get_cipher_signees(content)
     cipher = signees.next()
 
-    print 'Last edited by: ' + ('\n'.join(map(str, signees)) or 'n/a')
+    print 'Last edited by:\n' + ('\n'.join(map(lambda x: '\t* ' + str(x), signees)) or 'n/a')
 
-    print 'Access list:\n' + '\n'.join(map(lambda x: '\t* ' + str(x), gpg.get_cipher_recipients(cipher)))
+    print 'Access list:\n' + '\n'.join(map(lambda x: '\t* ' + str(x), gpg.get_cipher_recipients(cipher))) + '\n'
 
     try:
         print '\n' + gpg.decrypt(cipher)
