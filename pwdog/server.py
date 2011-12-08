@@ -70,8 +70,8 @@ def credential_put(name, type):
 
     new_recipients = list(gpg.get_cipher_recipients(credential))
 
-    print 'Old:',  map(str, old_recipients)
-    print 'New:', map(str, new_recipients)
+    print('Old:',  map(str, old_recipients))
+    print('New:', map(str, new_recipients))
 
     if len(old_recipients) > 0 and signee not in old_recipients:
         raise bottle.HTTPResponse(status=401, output='No access')
@@ -97,7 +97,7 @@ def credential_delete(name, type):
         except:
             old_recipients = []
 
-        print signee
+        print(signee)
 
         if len(old_recipients) > 0:
             if signee in old_recipients:

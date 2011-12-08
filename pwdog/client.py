@@ -38,7 +38,7 @@ def request(path, method='GET', body=''):
     # TODO: Assemble path here
     resp, content = h.request("http://127.0.0.1:8080%s" % path, method=method, body=body)
     if resp.status != 200:
-        print 'HTTP FAIL(%i): %s' % (resp.status, content)
+        print('HTTP FAIL(%i): %s' % (resp.status, content))
 
     return resp, content
 
@@ -47,7 +47,7 @@ def credential_get(name, type, **kwargs):
         # TODO: fix enumeration (format string fnord)
         resp, content = request('/credential/%s/%s' % (name, type), 'GET')
     except:
-        print 'Could not fetch credential from server'
+        print('Could not fetch credential from server')
         return False
 
     try:
@@ -61,7 +61,7 @@ def credential_get(name, type, **kwargs):
 
         for line in map(str, recipients_diff):
             if (line[0] + line[1]) == '+ ' or (line[0] + line[1]) == '- ':
-                print '\n'.join(map(str, recipients_diff))
+                print('\n'.join(map(str, recipients_diff)))
 
                 sys.stdout.write('Accept? (y/N) ')
                 reply = sys.stdin.readline().strip()
@@ -69,7 +69,7 @@ def credential_get(name, type, **kwargs):
                 if reply == 'y':
                     cache.set(name, type, content)
                 else:
-                    print "Operation aborted"
+                    print("Operation aborted")
                     return False
     except:
         pass
@@ -77,14 +77,15 @@ def credential_get(name, type, **kwargs):
     signees = gpg.get_cipher_signees(content)
     cipher = signees.next()
 
-    print 'Last edited by:\n' + ('\n'.join(map(lambda x: '\t* ' + str(x), signees)) or 'n/a')
+    print('Last edited by:\n' + ('\n'.join(map(lambda x: '\t* ' + str(x), signees)) or 'n/a'))
 
-    print 'Access list:\n' + '\n'.join(map(lambda x: '\t* ' + str(x), gpg.get_cipher_recipients(cipher))) + '\n'
+    print('Access list:\n' + '\n'.join(map(lambda x: '\t* ' + str(x),
+        gpg.get_cipher_recipients(cipher))) + '\n')
 
     try:
-        print '\n' + gpg.decrypt(cipher)
+        print('\n' + gpg.decrypt(cipher))
     except:
-        print 'You have no access to this credential!'
+        print('You have no access to this credential!')
         sys.exit(1)
 
     cache.set(name, type, content)
@@ -116,7 +117,7 @@ def credential_delete(name, type):
 def credential_recipients(name, type):
     try:
         content = cache.get(name, type)
-        print '\n'.join(map(str, gpg.get_cipher_recipients(content)))
+        print('\n'.join(map(str, gpg.get_cipher_recipients(content))))
     except:
         raise
 
