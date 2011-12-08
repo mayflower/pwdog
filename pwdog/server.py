@@ -19,7 +19,6 @@
 # along with pwdog.  If not, see <http://www.gnu.org/licenses/>.
 
 import bottle
-import os
 import json
 from gpg import GPG
 from store import FilesystemStore
@@ -88,8 +87,7 @@ def credential_delete(name, type):
     body = bottle.request.body.read()
     gpg = GPG()
 
-    signees = gpg.get_cipher_signees(body)
-    credential = signees.next()
+    signees = gpg.get_cipher_signees(body).next()
 
     for signee in signees:
         try:
