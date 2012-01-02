@@ -24,8 +24,11 @@ from gpg import GPG
 from store import FilesystemStore
 import config
 
-config  = config.Config('pwdog.conf', 'server')
-store = FilesystemStore(config.get('store_path'))
+config = config.Config('pwdog.conf', 'server')
+if config.get('store') == 'filesystem':
+    store = FilesystemStore(config.get('store_path'))
+else:
+    raise NotImplemented('Only filesystem store is currently implemented')
 
 def jsonify(f):
     def ret(*args, **kwargs):
