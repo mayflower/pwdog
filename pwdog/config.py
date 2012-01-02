@@ -31,3 +31,4 @@ class Config(object):
             return self.parser.get(self.context, key)
         except ConfigParser.NoOptionError:
             return None
+

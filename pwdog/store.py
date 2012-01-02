@@ -51,5 +51,9 @@ class FilesystemStore(object):
             return None
 
     def delete(self, name, type):
-        os.unlink(os.path.join(self.cache_path, name, type))
+        namepath = os.path.join(self.cache_path, name)
+        os.unlink(os.path.join(namepath, type))
+
+        if len(os.listdir(namepath)) == 0:
+            os.rmdir(namepath)
 
