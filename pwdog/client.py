@@ -27,9 +27,9 @@ import os.path
 
 from pprint import pprint
 
-from gpg import GPG
-from store import FilesystemStore
-from config import Config
+from pwdog.gpg import GPG
+from pwdog.store import FilesystemStore
+from pwdog.config import Config
 
 config = None
 gpg    = None

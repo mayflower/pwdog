@@ -20,12 +20,12 @@
 
 import bottle
 import json
-from gpg import GPG
 import os
 import os.path
 
-from store import FilesystemStore
-from config import Config
+from pwdog.gpg import GPG
+from pwdog.store import FilesystemStore
+from pwdog.config import Config
 
 store = None
 config = None
