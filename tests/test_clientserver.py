@@ -1,4 +1,3 @@
-import os
 import json
 from nose import with_setup
 
@@ -20,7 +19,6 @@ def setup_func():
 
     server.setup('tests/pwdog.conf')
     client.setup('tests/pwdog.conf')
-    os.environ['HOME'] = './tests'
     server.store.set('foo', 'bar', 'test')
 
     assert server.store.get('foo', 'bar') == 'test'

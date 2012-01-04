@@ -60,7 +60,7 @@ def credential(name, type):
 def credential_put(name, type, body=None):
     if body is None:
         body = bottle.request.body.read()
-    gpg = GPG()
+    gpg = GPG(config['gpg_home_dir'])
 
     signees = gpg.get_cipher_signees(body)
     credential = signees.next()
@@ -90,7 +90,7 @@ def credential_put(name, type, body=None):
 def credential_delete(name, type, body=None):
     if body is None:
         body = bottle.request.body.read()
-    gpg = GPG()
+    gpg = GPG(config['gpg_home_dir'])
 
     signees = gpg.get_cipher_signees(body)
     signees.next()

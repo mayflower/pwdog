@@ -23,10 +23,14 @@ To install pwdog on your machine type:
 ### Configuration
 pwdog has a simple configuration file that should reside in *~/.pwdog/pwdog.conf*:
 
+    [common]
+    # optionally set home directory for GPG manually (default: ~/.gnupg)
+    #gpg_home_dir = /var/lib/pwdog/gnupg
+
     [client]
-    server = localhost:8888
     mykeyid = <your key ID>
     cache_path = /home/<user>/.pwdog
+    server = localhost:8080
 
     [server]
     store = filesystem
@@ -40,7 +44,7 @@ To start the pwdog server type:
 ### Usage
 
 pwdog is simple to use on the command line:
-    
+
     $ pwdog [-h] {set,get,delete,recipients} ...
 
 The sub commands **set**, **get** and **delete** take a name and type argument.

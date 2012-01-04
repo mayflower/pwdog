@@ -48,9 +48,12 @@ class GPGKey(object):
 
 
 class GPG(object):
-    def __init__(self):
+    def __init__(self, home_dir=None):
         self.c = pyme.core.Context()
         self.c.set_armor(1)
+
+        if home_dir is not None:
+            self.c.set_engine_info(0, self.c.get_engine_info()[0].file_name, home_dir)
 
     def get_cipher_recipients(self, cipher):
         cipher_data = pyme.core.Data(cipher)

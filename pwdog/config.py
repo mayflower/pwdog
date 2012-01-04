@@ -33,5 +33,8 @@ class Config(object):
         try:
             return self.parser.get(self.context, key)
         except ConfigParser.NoOptionError:
-            return None
+            try:
+                return self.parser.get('common', key)
+            except ConfigParser.NoOptionError:
+                return None
 

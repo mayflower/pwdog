@@ -27,12 +27,12 @@ import os.path
 
 from pprint import pprint
 
-import gpg
+from gpg import GPG
 from store import FilesystemStore
 from config import Config
 
-gpg    = gpg.GPG()
 config = None
+gpg    = None
 cache  = None
 
 def request(path, method='GET', body=''):
@@ -136,6 +136,8 @@ def credential_recipients(name, type):
 def setup(configpath):
     global config
     config = Config(configpath, 'client')
+    global gpg
+    gpg = GPG(config['gpg_home_dir'])
     global cache
     cache = FilesystemStore(config.get('cache_path'))
 
