@@ -9,10 +9,10 @@ request_body = None
 
 def setup_func():
     def _request(path, method, body=''):
+        global request_body
         try:
             return None, request_body
         finally:
-            global request_body
             request_body = body
 
     client._request = client.request
@@ -32,10 +32,6 @@ def teardown_func():
 
     server.store.delete('foo', 'bar')
     assert server.store.get('foo', 'bar') is None
-    try:
-        server.store.delete('foo', 'baz')
-    except:
-        pass
 
 @with_setup(setup_func, teardown_func)
 def test_credential_names():
