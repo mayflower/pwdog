@@ -45,18 +45,13 @@ def request(path, method='GET', body=''):
     return resp, content
 
 def credential_get(name, type, **kwargs):
-    try:
-        # TODO: fix enumeration (format string fnord)
-        resp, content = request('/credential/%s/%s' % (name, type), 'GET')
-    except:
-        print('Could not fetch credential from server')
-        return False
+    (body, signees, cipher, content) = _credential_get(name, type)
 
     try:
         cached_content = cache.get(name, type)
 
         recipients_cached = '\n'.join(map(str, gpg.get_cipher_recipients(cached_content)))
-        recipients_remote = '\n'.join(map(str, gpg.get_cipher_recipients(content)))
+        recipients_remote = '\n'.join(map(str, gpg.get_cipher_recipients(body)))
 
         differ          = difflib.Differ()
         recipients_diff = differ.compare(recipients_cached.splitlines(), recipients_remote.splitlines())
@@ -69,15 +64,12 @@ def credential_get(name, type, **kwargs):
                 reply = sys.stdin.readline().strip()
 
                 if reply == 'y':
-                    cache.set(name, type, content)
+                    cache.set(name, type, body)
                 else:
                     print("Operation aborted")
                     return False
     except:
         pass
-
-    signees = gpg.get_cipher_signees(content)
-    cipher = signees.next()
 
     print('Last edited by:\n' + ('\n'.join(map(lambda x: '\t* ' + str(x), signees)) or 'n/a'))
 
@@ -85,14 +77,28 @@ def credential_get(name, type, **kwargs):
         gpg.get_cipher_recipients(cipher))) + '\n')
 
     try:
-        print('\n' + gpg.decrypt(cipher))
+        print('\n' + content)
     except:
         print('You have no access to this credential!')
         sys.exit(1)
 
-    cache.set(name, type, content)
+    cache.set(name, type, body)
 
-def credential_set(name, type):
+def _credential_get(name, type):
+    try:
+        # TODO: fix enumeration (format string fnord)
+        resp, body = request('/credential/%s/%s' % (name, type), 'GET')
+    except:
+        print('Could not fetch credential from server')
+        return False
+
+    signees = gpg.get_cipher_signees(body)
+    cipher = signees.next()
+    content = gpg.decrypt(cipher)
+
+    return (body, signees, cipher, content)
+
+def credential_set(name, type, **kwargs):
     inp = None
     recipients = []
 
@@ -106,12 +112,16 @@ def credential_set(name, type):
     sys.stdout.write('Enter the credentials:\n')
     plaintext = ''.join(sys.stdin.readlines())
 
+    _credential_set(name, type, recipients, plaintext)
+
+
+def _credential_set(name, type, recipients, plaintext):
     cipher = gpg.encrypt(recipients, plaintext)
     signed_cipher = gpg.sign([config.get('mykeyid')], cipher)
 
     request('/credential/%s/%s' % (name, type), 'PUT', signed_cipher)
 
-def credential_delete(name, type):
+def credential_delete(name, type, **kwargs):
     signed_cipher = gpg.sign([config.get('mykeyid')], 'DELETE %s/%s')
 
     request('/credential/%s/%s' % (name, type), 'DELETE', signed_cipher)
@@ -126,8 +136,8 @@ def credential_recipients(name, type):
 def setup(configpath):
     global config
     config = Config(configpath, 'client')
-    global store
-    store = FilesystemStore(config.get('cache_path'))
+    global cache
+    cache = FilesystemStore(config.get('cache_path'))
 
 def main():
     parser = argparse.ArgumentParser(description='pwdog')
