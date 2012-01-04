@@ -35,8 +35,8 @@ cache   = store.FilesystemStore(config.get('cache_path'))
 
 def request(path, method='GET', body=''):
     h = httplib2.Http()
-    # TODO: Assemble path here
-    resp, content = h.request("http://127.0.0.1:8080%s" % path, method=method, body=body)
+    resp, content = h.request("http://%s%s" % (config.get('server'), path),
+            method=method, body=body)
     if resp.status != 200:
         print('HTTP FAIL(%i): %s' % (resp.status, content))
 
