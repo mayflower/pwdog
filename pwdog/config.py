@@ -26,6 +26,9 @@ class Config(object):
         self.parser = ConfigParser.SafeConfigParser()
         self.parser.read(filename)
 
+    def __getitem__(self, key):
+	return self.get(key)
+
     def get(self, key):
         try:
             return self.parser.get(self.context, key)
