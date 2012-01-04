@@ -56,10 +56,7 @@ class GPG(object):
         cipher_data = pyme.core.Data(cipher)
         plaintext = pyme.core.Data()
 
-        try:
-            self.c.op_decrypt(cipher_data, plaintext)
-        except pyme.errors.GPGMEError:
-            pass
+        self.c.op_decrypt(cipher_data, plaintext)
 
         recipients = [i.keyid for i in self.c.op_decrypt_result().recipients]
 
