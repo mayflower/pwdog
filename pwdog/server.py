@@ -21,6 +21,8 @@
 import bottle
 import json
 from gpg import GPG
+import os
+import os.path
 
 from store import FilesystemStore
 from config import Config
@@ -119,7 +121,7 @@ def setup(configpath):
 
 
 def main():
-    setup('pwdog.conf')
+    setup(os.path.join(os.environ['HOME'], '.config/pwdog/pwdog.conf'))
     bottle.debug(True)
     bottle.run(host='localhost', port=8080)
 
