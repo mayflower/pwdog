@@ -22,16 +22,18 @@ import sys
 import argparse
 import httplib2
 import difflib
+import os
+import os.path
 
 from pprint import pprint
 
 import gpg
-import store
-import config
+from store import FilesystemStore
+from config import Config
 
-gpg     = gpg.GPG()
-config  = config.Config('pwdog.conf', 'client')
-cache   = store.FilesystemStore(config.get('cache_path'))
+gpg    = gpg.GPG()
+config = None
+cache  = None
 
 def request(path, method='GET', body=''):
     h = httplib2.Http()
@@ -121,8 +123,18 @@ def credential_recipients(name, type):
     except:
         raise
 
+def setup(configpath):
+    global config
+    config = Config(configpath, 'client')
+    global store
+    store = FilesystemStore(config.get('cache_path'))
+
 def main():
     parser = argparse.ArgumentParser(description='pwdog')
+
+    add_config_argument = lambda parser: parser.add_argument('-c', '--config',
+            type=str, help='path to config file',
+            default=os.path.join(os.environ['HOME'], '.config/pwdog/pwdog.conf'))
     subparsers = parser.add_subparsers(dest='command', help='sub-command help')
 
     parser_get = subparsers.add_parser('get', help='get a credential')
@@ -130,26 +142,33 @@ def main():
                        help='name of credential')
     parser_get.add_argument('type', type=str, default='', nargs='?',
                        help='type of service')
+    add_config_argument(parser_get)
 
     parser_set = subparsers.add_parser('set', help='set a credential')
     parser_set.add_argument('name', type=str,
                        help='name of credential')
     parser_set.add_argument('type', type=str,
                        help='type of service')
+    add_config_argument(parser_set)
 
     parser_delete = subparsers.add_parser('delete', help='delete a credential')
     parser_delete.add_argument('name', type=str,
                        help='name of credential')
     parser_delete.add_argument('type', type=str,
                        help='type of service')
+    add_config_argument(parser_delete)
 
     parser_recipients = subparsers.add_parser('recipients', help='show recipients of a cached credential')
     parser_recipients.add_argument('name', type=str,
                        help='name of credential')
     parser_recipients.add_argument('type', type=str,
                        help='type of service')
+    add_config_argument(parser_recipients)
 
     args = parser.parse_args()
+
+    setup(args.config)
+
     command_args = locals()['parser_' + args.command].parse_args(sys.argv[2:])
     globals()['credential_' + args.command].__call__(**vars(command_args))
 
