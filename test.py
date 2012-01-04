@@ -1,4 +1,6 @@
 #!/usr/bin/env python
 
 import nose
-nose.run()
+import sys
+
+nose.run(argv=sys.argv + ['--with-coverage', '--cover-package=pwdog'])
