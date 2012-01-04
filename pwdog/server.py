@@ -44,7 +44,10 @@ def credential_names():
 @bottle.get('/credential/:name')
 @jsonify
 def credential_types(name):
-    return store.get(name)
+    types = store.get(name)
+    if types is None:
+        return []
+    return types
 
 @bottle.get('/credential/:name/:type')
 def credential(name, type):
@@ -53,7 +56,6 @@ def credential(name, type):
         raise bottle.HTTPResponse(status=404, output='%s/%s not found' % (name, type))
     else:
         return credential
-
 
 @bottle.put('/credential/:name/:type')
 @jsonify

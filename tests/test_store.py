@@ -5,6 +5,8 @@ def test_filesystem_store():
     path = 'tests/credentials'
     s = store.FilesystemStore(path)
 
+    assert str(s) == 'FilesystemStore(%s)' % path
+
     data = [('foo', 'bar', 'omgwtf'), ('fu', 'baz', '')]
 
     for d in data:
@@ -15,3 +17,4 @@ def test_filesystem_store():
         assert s.get(*d[:2]) is None
 
         assert d[0] not in os.listdir(path)
+

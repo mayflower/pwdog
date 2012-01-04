@@ -105,18 +105,6 @@ class GPG(object):
 
                 yield GPGKey(key)
 
-    def get_subkeys(self, aliases):
-        for alias in aliases:
-            self.c.op_keylist_start(alias, 0)
-
-            while 1:
-                key = self.c.op_keylist_next()
-                if key is None:
-                    break
-
-                for subkey in key.subkeys:
-                    yield subkey
-
     def decrypt(self, cipher):
         cipher_data = pyme.core.Data(cipher)
         message = pyme.core.Data()

@@ -26,7 +26,7 @@ class FilesystemStore(object):
         self.cache_path = cache_path
 
     def __str__(self):
-        return 'Cache(%s)' % self.cache_path
+        return 'FilesystemStore(%s)' % self.cache_path
 
     def set(self, name, type, content):
         path = os.path.join(self.cache_path, name)

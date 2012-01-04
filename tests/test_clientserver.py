@@ -1,4 +1,5 @@
 import json
+import bottle
 from nose import with_setup
 
 import pwdog.server as server
@@ -38,10 +39,16 @@ def test_credential_names():
 @with_setup(setup_func, teardown_func)
 def test_credential_types():
     assert json.loads(server.credential_types('foo')) == ['bar']
+    assert json.loads(server.credential_types('notfound')) == []
 
 @with_setup(setup_func, teardown_func)
 def test_credential():
     assert server.credential('foo', 'bar') == 'test'
+
+    try:
+        assert server.credential('not', 'found') is None
+    except bottle.HTTPResponse, e:
+        assert e.status == 404
 
 @with_setup(setup_func, teardown_func)
 def test_credential_put_get_delete():
@@ -53,3 +60,4 @@ def test_credential_put_get_delete():
     client.credential_delete('foo', 'baz')
     server.credential_delete('foo', 'baz', request_body)
     assert server.store.get('foo', 'baz') is None
+
