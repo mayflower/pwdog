@@ -57,8 +57,9 @@ def credential(name, type):
 
 @bottle.put('/credential/:name/:type')
 @jsonify
-def credential_put(name, type):
-    body = bottle.request.body.read()
+def credential_put(name, type, body=None):
+    if body is None:
+        body = bottle.request.body.read()
     gpg = GPG()
 
     signees = gpg.get_cipher_signees(body)
@@ -73,8 +74,8 @@ def credential_put(name, type):
 
     new_recipients = list(gpg.get_cipher_recipients(credential))
 
-    print('Old:',  map(str, old_recipients))
-    print('New:', map(str, new_recipients))
+    #print('Old:',  map(str, old_recipients))
+    #print('New:', map(str, new_recipients))
 
     if len(old_recipients) > 0 and signee not in old_recipients:
         raise bottle.HTTPResponse(status=401, output='No access')
@@ -86,25 +87,23 @@ def credential_put(name, type):
 
 @bottle.delete('/credential/:name/:type')
 @jsonify
-def credential_delete(name, type):
-    body = bottle.request.body.read()
+def credential_delete(name, type, body=None):
+    if body is None:
+        body = bottle.request.body.read()
     gpg = GPG()
 
-    signees = gpg.get_cipher_signees(body).next()
+    signees = gpg.get_cipher_signees(body)
+    signees.next()
+    signees = list(signees)
 
+    old_signees = gpg.get_cipher_signees(store.get(name, type))
+    old_recipients = list(gpg.get_cipher_recipients(old_signees.next()))
+    print old_recipients
     for signee in signees:
-        try:
-            old_recipients = list(gpg.get_cipher_recipients(
-                                file('credentials/%s/%s' % (name, type), 'r').read()
-                                ))
-        except:
-            old_recipients = []
-
-        print(signee)
-
         if len(old_recipients) > 0:
             if signee in old_recipients:
                 store.delete(name, type)
+                return
             else:
                 raise bottle.HTTPResponse(status=401)
         else:
