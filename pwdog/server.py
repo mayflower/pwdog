@@ -98,7 +98,6 @@ def credential_delete(name, type, body=None):
 
     old_signees = gpg.get_cipher_signees(store.get(name, type))
     old_recipients = list(gpg.get_cipher_recipients(old_signees.next()))
-    print old_recipients
     for signee in signees:
         if len(old_recipients) > 0:
             if signee in old_recipients:
