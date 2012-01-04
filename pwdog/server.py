@@ -21,14 +21,12 @@
 import bottle
 import json
 from gpg import GPG
-from store import FilesystemStore
-import config
 
-config = config.Config('pwdog.conf', 'server')
-if config.get('store') == 'filesystem':
-    store = FilesystemStore(config.get('store_path'))
-else:
-    raise NotImplemented('Only filesystem store is currently implemented')
+from store import FilesystemStore
+from config import Config
+
+store = None
+config = None
 
 def jsonify(f):
     def ret(*args, **kwargs):
@@ -110,7 +108,18 @@ def credential_delete(name, type):
         else:
             raise bottle.HTTPResponse(status=404)
 
+def setup(configpath):
+    global config
+    config = Config(configpath, 'server')
+    if config.get('store') == 'filesystem':
+        global store
+        store = FilesystemStore(config.get('store_path'))
+    else:
+        raise NotImplemented('Only filesystem store is currently implemented')
+
+
 def main():
+    setup('pwdog.conf')
     bottle.debug(True)
     bottle.run(host='localhost', port=8080)
 
