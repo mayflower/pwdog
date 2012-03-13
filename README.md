@@ -51,7 +51,7 @@ The sub commands **set**, **get** and **delete** take a name and type argument.
 
 #### Examples
 
-If we want to save credentials for the root account of foo.example.com, we could type this:
+If you want to save credentials for the root account of foo.example.com, we could type this:
 
     $ pwdog set foo.example.com login_root
 
