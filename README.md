@@ -55,7 +55,7 @@ If you want to save credentials for the root account of foo.example.com, we coul
 
     $ pwdog set foo.example.com login_root
 
-... providing pwdog with a name (i.e. a hostname) and type of credential to save.
+... providing pwdog with a name (i.e. a hostname) and the type of credential (i.e. service) to save.
 
 ## Authors
 [Patrick Otto](mailto:patrick.otto@mayflower.de) and [Franz Pletz](mailto:franz.pletz@mayflower.de)
